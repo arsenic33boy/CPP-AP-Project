@@ -15,22 +15,20 @@ int main() {
 
     std::cout << '\n';
 
-    // افزودن عناصر به وکتور
     for (int i = 0; i < 100; ++i) {
         vec.insert(i, i);
     }
 
-    // زمان سنجی عملیات درج
+  
     std::clock_t startInsert = clock();
     vec.insert(50, 999);
     std::clock_t endInsert = clock();
-    std::cout << "Insert operation took: " << 1000.0 * (endInsert - startInsert) / CLOCKS_PER_SEC << " clock cycles." << std::endl;
+    std::cout << "Insert operation took: " << 1000.0 * (endInsert - startInsert) / CLOCKS_PER_SEC << "ms" << std::endl;
 
-    // زمان سنجی عملیات حذف
     std::clock_t startRemove = clock();
     vec.remove(50);
     std::clock_t endRemove = clock();
-    std::cout << "Remove operation took: " << 1000.0 * (endRemove - startRemove) / CLOCKS_PER_SEC << " clock cycles." << std::endl;
+    std::cout << "Remove operation took: " << 1000.0 * (endRemove - startRemove) / CLOCKS_PER_SEC << "ms" << std::endl;
 
 
 
