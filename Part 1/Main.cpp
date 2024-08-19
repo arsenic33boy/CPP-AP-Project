@@ -1,37 +1,63 @@
-﻿#include "Vector.h"
-#include "PointerVector.h"
+﻿#include <iostream>
+#include <vector>
+#include <ctime>
+#include "CustomVector.h"  // Include your CustomVector header file
+#include "pvector.h"       // Include your pvector header file
+
+// Define a struct with large data members
+struct LargeObject {
+    std::vector<int> data;
+
+    LargeObject() : data(262144) { // Allocate 1MB (262144 integers) on the heap
+    }
+};
 
 int main() {
-    CustomVector<int> vec;
-    vec.push_back(1);
-    vec.push_back(2);
-    vec.push_back(3);
-    vec.insert(1, 4);
-    //vec.remove(2);
+    const size_t num_elements = 100; // Number of elements for testing
 
-    for (size_t i = 0; i < vec.get_size(); ++i) {
-        std::cout << vec[i] << " ";
+    // Measure performance of CustomVector
+    CustomVector<LargeObject> cvec(num_elements, LargeObject());
+
+    LargeObject obj; // Default-initialized LargeObject
+
+    // Measure time for insert operations
+    std::clock_t start_c_insert = std::clock();
+    for (size_t i = 0; i < 10; ++i) {
+        cvec.Insert(0, obj);
     }
+    std::clock_t end_c_insert = std::clock();
+    double c_insert_duration = 1000.0 * (end_c_insert - start_c_insert) / CLOCKS_PER_SEC;
+    std::cout << "CustomVector insert operations took: " << c_insert_duration / 10 << " milliseconds on average" << std::endl;
 
-    std::cout << '\n';
-
-    for (int i = 0; i < 100; ++i) {
-        vec.insert(i, i);
+    // Measure time for remove operations
+    std::clock_t start_c_remove = std::clock();
+    for (size_t i = 0; i < 10; ++i) {
+        cvec.Remove(0);
     }
+    std::clock_t end_c_remove = std::clock();
+    double c_remove_duration = 1000.0 * (end_c_remove - start_c_remove) / CLOCKS_PER_SEC;
+    std::cout << "CustomVector remove operations took: " << c_remove_duration / 10 << " milliseconds on average" << std::endl;
 
-  
-    std::clock_t startInsert = clock();
-    vec.insert(50, 999);
-    std::clock_t endInsert = clock();
-    std::cout << "Insert operation took: " << 1000.0 * (endInsert - startInsert) / CLOCKS_PER_SEC << "ms" << std::endl;
+    // Measure performance of pvector
+    pvector<LargeObject> pvec(num_elements, LargeObject());
 
-    std::clock_t startRemove = clock();
-    vec.remove(50);
-    std::clock_t endRemove = clock();
-    std::cout << "Remove operation took: " << 1000.0 * (endRemove - startRemove) / CLOCKS_PER_SEC << "ms" << std::endl;
+    // Measure time for insert operations
+    std::clock_t start_p_insert = std::clock();
+    for (size_t i = 0; i < 10; ++i) {
+        pvec.Insert(0, obj);
+    }
+    std::clock_t end_p_insert = std::clock();
+    double p_insert_duration = 1000.0 * (end_p_insert - start_p_insert) / CLOCKS_PER_SEC;
+    std::cout << "pvector insert operations took: " << p_insert_duration / 10 << " milliseconds on average" << std::endl;
 
-
-
+    // Measure time for remove operations
+    std::clock_t start_p_remove = std::clock();
+    for (size_t i = 0; i < 10; ++i) {
+        pvec.Remove(0);
+    }
+    std::clock_t end_p_remove = std::clock();
+    double p_remove_duration = 1000.0 * (end_p_remove - start_p_remove) / CLOCKS_PER_SEC;
+    std::cout << "pvector remove operations took: " << p_remove_duration / 10 << " milliseconds on average" << std::endl;
 
     return 0;
 }
