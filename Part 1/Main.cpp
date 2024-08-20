@@ -1,24 +1,24 @@
 ﻿#include <iostream>
 #include <vector>
 #include <ctime>
-#include "CustomVector.h"  // Include your CustomVector header file
-#include "pvector.h"       // Include your pvector header file
+#include "CustomVector.h" 
+#include "pvector.h"       
 
-// Define a struct with large data members
-struct LargeObject {
-    std::vector<int> data;
-
-    LargeObject() : data(262144) { // Allocate 1MB (262144 integers) on the heap
-    }
+// Define a struct with large data
+class LargeObject {
+public:
+    std::vector<char> data;
+    LargeObject(int size=1) : data(1024*1024*size) { }
 };
 
 int main() {
-    const size_t num_elements = 100; // Number of elements for testing
+    // Number of elements for testing
+    const size_t num_elements = 100;
 
-    // Measure performance of CustomVector
-    CustomVector<LargeObject> cvec(num_elements, LargeObject());
+    
+    CustomVector<LargeObject> cvec(num_elements);
 
-    LargeObject obj; // Default-initialized LargeObject
+    LargeObject obj(1); 
 
     // Measure time for insert operations
     std::clock_t start_c_insert = std::clock();
@@ -58,6 +58,8 @@ int main() {
     std::clock_t end_p_remove = std::clock();
     double p_remove_duration = 1000.0 * (end_p_remove - start_p_remove) / CLOCKS_PER_SEC;
     std::cout << "pvector remove operations took: " << p_remove_duration / 10 << " milliseconds on average" << std::endl;
+    
+
 
     return 0;
 }

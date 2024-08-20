@@ -27,10 +27,13 @@
 *.lib
 
 # Executables
-*.exe
-*.out
+#*.exe
+#*.out
 *.app
 *.vsidx
+
+
+
 /Part 1/.vs
 *.sln
 *.tlog
@@ -38,3 +41,4 @@
 *.vcxproj
 *.filters
 *.user
+/Part 1/Part1
