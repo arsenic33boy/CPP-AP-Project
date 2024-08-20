@@ -1,99 +1,139 @@
-
 #include <iostream>
 #include <vector>
-#include <memory>
 
-// کلاس شکل با خاصیت چگالی
 class Shape {
-public:
-    double volume;
+protected:
     double density;
 
-    Shape(double vol, double dens) : volume(vol), density(dens) {}
+public:
+    Shape(double dens) : density(dens) {}
 
-    // محاسبه جرم
-    double mass() const {
-        return volume * density;
+    virtual double EvalVolume() const = 0;
+    virtual double EvalSurface() const = 0;
+
+    double EvalMass() const {
+        return density * EvalVolume();
+    }
+
+    void setDensity(double dens) {
+        density = dens;
+    }
+
+    virtual ~Shape() = default;
+};
+
+class Cube : public Shape {
+private:
+    double side;
+
+public:
+    Cube(double sideLength, double dens) : Shape(dens), side(sideLength) {}
+
+    double EvalVolume() const override {
+        return side * side * side;
+    }
+
+    double EvalSurface() const override {
+        return 6 * side * side;
+    }
+
+    void setSide(double sideLength) {
+        side = sideLength;
+    }
+
+    void setDensity(double dens) { 
+        density = dens;
     }
 };
 
-// کلاس دستگاه
-class Device {
+class Sphere : public Shape {
 private:
-    std::vector<std::shared_ptr<Shape>> shapes;
-    std::vector<std::shared_ptr<Device>> devices;
+    double radius;
 
 public:
-    // افزودن یک شکل به دستگاه
-    void addShape(std::shared_ptr<Shape> shape) {
+    Sphere(double rad, double dens) : Shape(dens), radius(rad) {}
+
+    double EvalVolume() const override {
+        return (4.0 / 3.0) * 3.141592653589793 * radius * radius * radius;
+    }
+
+    double EvalSurface() const override {
+        return 4 * 3.141592653589793 * radius * radius;
+    }
+
+    void setRadius(double rad) {
+        radius = rad;
+    }
+
+    void setDensity(double dens) {
+        density = dens; 
+    }
+};
+
+class Device {
+private:
+    std::vector<Shape*> shapes;
+    std::vector<Device*> devices;
+
+public:
+    void addShape(Shape* shape) {
         shapes.push_back(shape);
     }
 
-    // افزودن یک دستگاه به دستگاه
-    void addDevice(std::shared_ptr<Device> device) {
+    void addDevice(Device* device) {
         devices.push_back(device);
     }
 
-    // محاسبه حجم کل دستگاه
-    double evalVolume() const {
+    double EvalVolume() const {
         double totalVolume = 0;
         for (const auto& shape : shapes) {
-            totalVolume += shape->volume;
+            totalVolume += shape->EvalVolume();
         }
-        for (const auto& device : devices) {
-            totalVolume += device->evalVolume();
+        for (const auto& dev : devices) {
+            totalVolume += dev->EvalVolume();
         }
         return totalVolume;
     }
 
-    // محاسبه جرم کل دستگاه
-    double evalMass() const {
-        double totalMass = 0;
-        for (const auto& shape : shapes) {
-            totalMass += shape->mass();
-        }
-        for (const auto& device : devices) {
-            totalMass += device->evalMass();
-        }
-        return totalMass;
-    }
-
-    // محاسبه سطح کل دستگاه (فرض می‌کنیم شکل‌ها دارای سطح مشخصی هستند)
-    double evalSurface() const {
-        // پیاده‌سازی مشابه evalVolume و evalMass
+    double EvalSurface() const {
         double totalSurface = 0;
         for (const auto& shape : shapes) {
-            totalSurface += shape->volume; // فرض: سطح برابر با حجم است
+            totalSurface += shape->EvalSurface();
         }
-        for (const auto& device : devices) {
-            totalSurface += device->evalSurface();
+        for (const auto& dev : devices) {
+            totalSurface += dev->EvalSurface();
         }
         return totalSurface;
+    }
+
+    double EvalMass() const {
+        double totalMass = 0;
+        for (const auto& shape : shapes) {
+            totalMass += shape->EvalMass();
+        }
+        for (const auto& dev : devices) {
+            totalMass += dev->EvalMass();
+        }
+        return totalMass;
     }
 };
 
 int main() {
-    // ایجاد اشکال
-    auto shape1 = std::make_shared<Shape>(10.0, 2.5);
-    auto shape2 = std::make_shared<Shape>(20.0, 1.5);
+    Cube cube(3.0, 2.5);
+    Sphere sphere(2.0, 1.5);
 
-    // ایجاد دستگاه‌ها
-    auto device1 = std::make_shared<Device>();
-    auto device2 = std::make_shared<Device>();
+    Device device1;
+    Device device2;
+    device1.addShape(&cube);
+    device2.addShape(&sphere);
 
-    // افزودن اشکال به دستگاه‌ها
-    device1->addShape(shape1);
-    device2->addShape(shape2);
+    Device mainDevice;
+    mainDevice.addDevice(&device1);
+    mainDevice.addDevice(&device2);
 
-    // افزودن دستگاه‌ها به دستگاه اصلی
-    auto mainDevice = std::make_shared<Device>();
-    mainDevice->addDevice(device1);
-    mainDevice->addDevice(device2);
-
-    // محاسبه و نمایش مقادیر
-    std::cout << "Total Volume: " << mainDevice->evalVolume() << std::endl;
-    std::cout << "Total Mass: " << mainDevice->evalMass() << std::endl;
-    std::cout << "Total Surface: " << mainDevice->evalSurface() << std::endl;
+    std::cout << "Total Volume: " << mainDevice.EvalVolume() << std::endl;
+    std::cout << "Total Mass: " << mainDevice.EvalMass() << std::endl;
+    std::cout << "Total Surface: " << mainDevice.EvalSurface() << std::endl;
 
     return 0;
 }
